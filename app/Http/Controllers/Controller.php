@@ -75,13 +75,33 @@ class Controller extends BaseController
             return false;
         }
 
-
         $userSave = Users::where('email', $userData->email)->first();
 
         $passwordSave = $this->decodificar($userSave->password);
         $passwordData = $this->decodificar($userData->password);
 
         if(!is_null($userSave) && $passwordSave == $passwordData)
+        {
+            return true;
+        }
+        return false;
+    } 
+
+    protected function checkLoginAdmin()
+    {
+        $userData = $this->getUserData();
+
+        if(is_null($userData))
+        {
+            return false;
+        }
+
+        $userSave = Users::where('email', $userData->email)->first();
+
+        $passwordSave = $this->decodificar($userSave->password);
+        $passwordData = $this->decodificar($userData->password);
+
+        if(!is_null($userSave) && $passwordSave == $passwordData && $userSave->id_rol == 2 )
         {
             return true;
         }
@@ -119,5 +139,34 @@ class Controller extends BaseController
             }
         }
         return $resultado;
+    }
+
+    public function checkPassword($password)
+    {
+        if(strlen($password) < 8)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public function checkEmail($email)
+    {
+        if(!filter_var($email, FILTER_VALIDATE_EMAIL))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public function checkUserExist($email)
+    {
+        $userData = Users::where('email',$email)->first();
+
+        if(!is_null($userData))
+        {
+            return true;
+        }
+        return false;
     }
 }

@@ -11,8 +11,9 @@ class SpotsController extends Controller
     {
         if ($this->checkLogin()) 
         { 
-            $userData = $this->getUserData();
-            $spotsSave = $this->allSpotsOneUser($userData->id);
+            //$userData = $this->getUserData();
+            //$spotsSave = $this->allSpotsOneUser($userData->id);
+            $spotsSave = Spots::all();
 
             if(count($spotsSave) < 1 )
             {
@@ -56,20 +57,28 @@ class SpotsController extends Controller
                 return $this->error(400, "No puede estar vacio la fecha de fin del spot");
             }
 
+             if(!$request->filled("coordenadasX") || !$request->filled("coordenadasY"))
+            {
+                return $this->error(400, "No puede estar las coordenadas del spot");
+            }
+
             $userData = $this->getUserData();
 
-            if($this->isUsedSpotName($request->spotName,$userData->id))
+            if($this->isUsedSpotName($userData->id,$request->spotName))
             {
                 return $this->error(400,'El nombre del spots ya esta siendo usado');
             }
             
             $spots = new Spots();
             $spots->id_user = $userData->id;
-            $spots->name = $this->deleteAllSpace($request->spotName);
+            $spots->name = $request->spotName;
             $spots->description = $request->spotDescription;
             $spots->dateOfStart = $request->dateOfStart;
             $spots->dateOfEnd = $request->dateOfEnd;
+            $spots->coordenadasX = $request->coordenadasX;
+            $spots->coordenadasY = $request->coordenadasY;
             $spots->save();
+
             return $this->success('Spot creado', $request->spotName);
         }
         else
@@ -173,7 +182,7 @@ class SpotsController extends Controller
 
     private function allSpotsOneUser($id)
     {
-        return Spots::where('id_user', $id)->get();
+        return Spots::all();
     }
 
     private function oneSpotOfUser($id,$spotname)
@@ -192,14 +201,15 @@ class SpotsController extends Controller
 
     private function isUsedSpotName($id_user,$spotName)
     {
-        $spotsSave = $this-> allSpotsOneUser($id_user);
-        foreach ($spotsSave as $spot => $spotSave) 
-        {
-            if($spotSave->name == $spotName)
+        $spotsSave = $this->allSpotsOneUser($id_user);
+
+        foreach($spotsSave as $spots => $spot) 
+        {            
+            if($spot->name == $spotName)
             {
-                return true;
+                return true;  
             }  
         }
-        return false;
+        return false;    
     }
 }

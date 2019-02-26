@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use \Firebase\JWT\JWT;
 use App\Users;
 
 class RegisterController extends Controller
@@ -39,40 +40,23 @@ class RegisterController extends Controller
             $users->email = $email;
             $users->save();
 
-            return $this->success('Usuario registrado',"");                 
+            $userSave = Users::where('email', $email)->first();
+
+            $userData = array(
+
+                'id' => $userSave->id,
+                'name' => $userSave->name,
+                'email' => $userSave->email,
+                'password' => $userSave->password
+            );
+
+            $token = JWT::encode($userData, $this->key);
+
+            return $this->success('Usuario registrado',$token);                 
         }
         else
         {
             return $this->error(400,'No puede haber campos vacios');
         }    
-    }
-
-    public function checkPassword($password)
-    {
-        if(strlen($password) < 8)
-        {
-            return true;
-        }
-        return false;
-    }
-
-    public function checkEmail($email)
-    {
-        if(!filter_var($email, FILTER_VALIDATE_EMAIL))
-        {
-            return true;
-        }
-        return false;
-    }
-
-    public function checkUserExist($email)
-    {
-        $userData = Users::where('email',$email)->first();
-
-        if(!is_null($userData))
-        {
-            return true;
-        }
-        return false;
     }
 }

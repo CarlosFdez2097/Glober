@@ -22,4 +22,8 @@ Route::post('register', 'RegisterController@register');
 
 Route::post('login', 'LoginController@login');
 
+Route::post('loginAdmin', 'LoginController@loginAdmin');
+
 Route::apiResource('spot','SpotsController');
+
+Route::apiResource('user','UserController');

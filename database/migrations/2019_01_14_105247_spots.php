@@ -20,6 +20,8 @@ class Spots extends Migration
             $table->date('dateOfStart');
             $table->date('dateOfEnd');
             $table->integer('id_user');
+            $table->double('coordenadasX');
+            $table->double('coordenadasY');
             $table->timestamps();
         });
     }
